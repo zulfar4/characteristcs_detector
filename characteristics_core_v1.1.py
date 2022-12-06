@@ -31,8 +31,19 @@ count_core=0
 
 core_universe=[]
 
-with open('output/characteristics_names_A.json', encoding='utf-8') as file:
+with open("output/target_extracted_results.json", encoding='utf-8') as file:
     charac_a = json.load(file)
+    char =[]
+    
+    for ch in charac_a:
+        for c in ch:
+            # print(c['name'])
+            if 'name' in c and c['name'] != "":
+                char.append(c['name'])
+    charac_a.clear()
+    charac_a = char    
+    
+
 
 for phrase in charac_a:
     core=False          #Суть

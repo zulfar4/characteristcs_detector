@@ -26,7 +26,7 @@ def select_necessary_data(conn, column_name, table_name):
     cur.execute(f"SELECT {column_name} FROM {table_name}")
 
     return cur.fetchall()
-#TODO тестовые ограничения 
+#TODO тестовые ограничения на выгрузку БД
 # LIMIT = 10000
 LIMIT = None
 #TODO посмотреть что делает метод
@@ -79,7 +79,8 @@ def filterExceptions(exceptionWords, listOfWords):
 
 
 def main():
-    database = "db/satom22082022.db"
+    database = "db/avito_raw_341k.db"
+
 
  
 
@@ -88,11 +89,11 @@ def main():
     with conn:
 
         cur = conn.cursor()
-        cur.execute(f"SELECT description_product FROM promyshlennoe_oborudovanie_satom limit {LIMIT}" if LIMIT else f"SELECT description_product FROM promyshlennoe_oborudovanie_satom")        
+        cur.execute(f"SELECT description_product FROM promyshlennoe_oborudovanie_avito limit {LIMIT}" if LIMIT else f"SELECT description_product FROM promyshlennoe_oborudovanie_avito")        
         chunk_size = 1000
 
        
-        with open('output/characteristics_satom.json', 'w', encoding='utf-8') as f:
+        with open('output/characteristics_avito.json', 'w', encoding='utf-8') as f:
             pass
         with open('output/skipped_words.json', 'w', encoding='utf-8') as f:
             pass
@@ -115,12 +116,14 @@ def main():
                     print(f"Обработано {round(c_r/count_rows,2)*100} %")
                     c_r+=1
 
-                    data_dict = ast.literal_eval(row[0])
-                    description_text = data_dict['text']
+                    # data_dict = ast.literal_eval(row[0])
+                    # description_text = data_dict['text']
+                    description_text = row[0]
 
                     if (description_text != "NA" and isinstance(description_text,str)):
-                        # список едениц измерения. Может, есть смысл, скачать из интернета готовый список и под
-                        #гружать его        
+                        
+                    # список едениц измерения. Может, есть смысл, скачать из интернета готовый список и под
+                    #гружать его        
                         measureUnits = get_meausere_Units()
                         # value or size: "102х1150x4 cm"
                         sizePattern = "[\d]+[\ ]*[\.]*[\,]*[\ ]*[/]*[\d]* ?[хxXХ]* ?[\d]* ?[хxXХ]* ?[\d]* ?" + measureUnits
@@ -129,7 +132,7 @@ def main():
                         # "Макс. сечение профиля 60 x 30 x 3 мм"
                         # "Ширина 1 000 мм"
                         # m = re.findall("[\n]*[А-ЯЁ]{1}[а-яё]+,?.?:? ?[а-яё]* ?[а-яё]* ?[а-яё]*:?,? ?"+sizePattern+" ?[а-яё]*", description_text)
-                        m = re.findall("[\n]*[А-ЯЁ]{1}[а-яё]+,?.?:? ?[а-яё]* ?[а-яё]* ?[а-яё]*:?,? ?"+sizePattern, description_text)
+                        m = re.findall("[А-ЯЁ]{1}[а-яё]+,?.?:? ?[а-яё]* ?[а-яё]* ?[а-яё]*:?,? ?"+sizePattern, description_text)
                         # m = re.findall("[\n]*[А-ЯЁ]{1}[а-яё]+,?.?:? ?[а-яё]* ?[а-яё]* ?[а-яё]*:?,? ?", description_text)
 
                         # "Габаритные размеры, мм: - диаметр чаши 365- высота 520Масса, 6 кг"
@@ -149,15 +152,14 @@ def main():
                                 skippedWords.append(fltExc[1])
                     else:
                         continue
+                    
+
                     # description_texts.append(description_text)
     
-        # with open('description_texts_satom.json', 'a', encoding='utf-8') as f:
-            # json.dump(description_texts, f, ensure_ascii=False, indent=4)
-                            #TODO прописать пути
-                            
-        with open('output/characteristics_satom.json', 'w', encoding='utf-8') as f:
+        
+        with open('output/characteristics_avito.json', 'w', encoding='utf-8') as f:
             json.dump(characteristics, f, ensure_ascii=False, indent=4)
-        with open('output/skipped_words.json', 'a', encoding='utf-8') as f:
+        with open('output/skipped_words.json', 'w', encoding='utf-8') as f:
             json.dump(skippedWords, f, ensure_ascii=False, indent=4)
 
 
